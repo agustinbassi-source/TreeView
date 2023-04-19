@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Menu</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MenuGUI.styles.css" asp-append-version="true" />
+
+    <style>
+        html {
+            margin: 0;
+            padding: 0;
+            font-size: 62.5%;
+        }
+
+        body {
+            max-width: 1500px;
+            min-width: 300px;
+            margin: 0 auto;
+            padding: 20px 10px;
+            font-size: 14px;
+            font-size: 1.4em;
+        }
+
+        h1 {
+            font-size: 1.8em;
+        }
+
+        .demo {
+            overflow: auto;
+            border: 1px solid silver;
+            min-height: 100px;
+        }
+    </style>
+    <link rel="stylesheet" href="/dist/themes/default/style.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                @*  <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MenuGUI</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>*@
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <select id="menuSelect" class="form-control" style="width: 150px !important">
+                            </select>
+
+                        </li>
+                        <li>
+                            <input type="button" class="form-control" onclick="goMenu()" value="Go" style="width: 50px !important" />
+                        </li>
+                   @*     <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="MenuGuiItems" asp-action="Index">Menu items</a>
+                        </li>*@
+
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            @*  &copy; 2023 - MenuGUI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>*@
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+
+        const fillMenuItems = () => {
+
+
+
+            let todos = document.getElementById('menuSelect');
+            let newDefault1 = new Option('Select tree', null, true, true)
+            newDefault1.disabled = true
+            todos.add(newDefault1)
+
+            fetch('/api/Menu/GetMenus')
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(todo => {
+                        let option = new Option(todo.title, todo.id)
+                        console.log(option)
+                        todos.add(option)
+                    });
+                });
+
+        }
+
+        fillMenuItems();
+
+        const goMenu = () => {
+
+            localStorage.setItem("menuId", document.getElementById("menuSelect").value);
+
+            window.location.href = "/menuguiitems/tree";
+
+        }
+
+        const getMenuId = () => {
+
+            const id = localStorage.getItem("menuId");
+
+            if (id == undefined || id == null || id == 0) {
+                alert("To start select a menu and click on Go")
+                return 0;
+            }
+
+            return parseInt(id);
+
+        }
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

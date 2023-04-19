@@ -1,0 +1,167 @@
+﻿
+<div class="row">
+    <div class="col-md-8">
+        <div id="menuTreeDv" class="demo">
+        </div>
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Edit node</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <label for="txtNodeId">Id</label>
+                <input type="text" class="form-control" id="txtNodeId" placeholder="Id" readonly />
+            </div>
+
+            <div class="col-md-6">
+                <label for="txtSubNodeTitle">Order</label>
+                <input type="number" class="form-control" id="txtNodeOrder" placeholder="Order" />
+            </div>
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <label for="txtNodeTitle">Title</label>
+                <input type="text" class="form-control" id="txtNodeTitle" placeholder="Title" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" value="Update" onclick="updateNode()" class="btn-success" />
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Create sub-node</h4>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+                <label for="txtSubNodeTitle">Title</label>
+                <input type="text" class="form-control" id="txtSubNodeTitle" placeholder="Title" />
+            </div>
+        </div>
+        <div class="row">
+
+            <div class="col-md-6">
+                <label for="txtSubNodeTitle">Order</label>
+                <input type="number" class="form-control" id="txtSubNodeOrder" placeholder="Order" />
+            </div>
+
+            <div class="col-md-6">
+                <label for="txtSubNodeParentId">Parent Id</label>
+                <input type="text" class="form-control" id="txtSubNodeParentId" placeholder="Parent Id" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" value="Crete" onclick="createNode()" class="btn-success" />
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+
+
+
+@section Scripts
+    {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/dist/jstree.min.js"></script>
+    <script type="text/javascript">
+
+        var selectedNode = {};
+
+        const fillTree =  () => {
+
+            if (getMenuId() == 0) {
+                return;
+            }
+
+            $('#menuTreeDv').jstree({
+                'core': {
+                    'plugins': ['html_data', 'themes', 'ui', 'types'],
+                    'data': {
+                        "url": "/api/Menu/GetMenuItems?menuId=" + getMenuId(),
+                        "dataType": "json" // needed only if you do not supply JSON headers
+                    }
+                }
+            }).bind("ready.jstree", function (event, data) {
+                $(this).jstree("open_all");
+            });;
+
+            $('#menuTreeDv').on("select_node.jstree",   function (e, data) {
+
+                  getNode(data.node.id)
+               
+
+            });
+        }
+
+        fillTree();
+
+        const getNode = async (id) => {
+
+            let url = "/api/Menu/GetNode/" + id;
+
+            const response = await fetch(url);
+              selectedNode = await response.json();
+            
+
+            console.log("get node api", selectedNode);
+
+            document.getElementById("txtNodeId").value =id
+            document.getElementById("txtSubNodeParentId").value =id
+            document.getElementById("txtNodeTitle").value = selectedNode.title
+
+            document.getElementById("txtNodeOrder").value = selectedNode.orderMenu
+
+        }
+
+        const updateNode = () => {
+
+
+            $('#menuTreeDv').jstree("refresh");
+        }
+
+        const createNode = async () => {
+
+            var node = {
+                "": "",
+                "": "",
+                "": ""
+            }
+
+            await fetchApi(node, "POST", "/api/...")
+
+            $('#menuTreeDv').jstree("refresh");
+            document.getElementById("txtSubNodeTitle").value = ""
+            document.getElementById("txtSubNodeOrder").value = 0
+        }
+
+        const fetchApi = async (model, verb, url) => {
+
+
+
+        }
+
+    </script>
+	}
