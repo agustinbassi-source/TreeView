@@ -90,6 +90,9 @@ namespace MenuGUI.Controllers.Api
           {
               return Problem("Entity set 'MenuGUIContext.Coment'  is null.");
           }
+
+            coment.Usr = User.Identities.FirstOrDefault().Name;
+
             _context.Coment.Add(coment);
             await _context.SaveChangesAsync();
 

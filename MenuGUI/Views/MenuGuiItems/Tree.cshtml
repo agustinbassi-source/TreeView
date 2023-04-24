@@ -14,20 +14,6 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <label for="txtNodeId">Id</label>
-                <input type="text" class="form-control" id="txtNodeId" placeholder="Id" readonly />
-            </div>
-
-            <div class="col-md-6">
-                <label for="txtSubNodeTitle">Order</label>
-                <input type="number" class="form-control" id="txtNodeOrder" placeholder="Order" />
-            </div>
-
-        </div>
-
-
-        <div class="row">
             <div class="col-md-12">
                 <label for="txtNodeTitle">Title</label>
                 <input type="text" class="form-control" id="txtNodeTitle" placeholder="Title" />
@@ -35,16 +21,49 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12">
-                <input type="button" value="Update" onclick="updateNode()" class="btn-success" />
+            <div class="col-md-4">
+                <label for="txtNodeId">Id</label>
+                <input type="text" class="form-control" id="txtNodeId" placeholder="Id" readonly />
             </div>
+
+            <div class="col-md-4">
+                <label for="txtSubNodeTitle">Order</label>
+                <input type="number" class="form-control" id="txtNodeOrder" placeholder="Order" />
+            </div>
+
+            <div class="col-md-4">
+                <label for="txtParentId">ParentId</label>
+                <input type="number" class="form-control" id="txtParentId" placeholder="ParentId" />
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <label>Actions</label>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-4">
+
+                <input type="button" value="Update" onclick="updateNode()" class="form-control btn-success" />
+            </div>
+            <div class="col-md-4">
+                <input type="button" value="Remove node" onclick="removeNode()" class="form-control btn-warning" />
+            </div>
+            <div class="col-md-4">
+                <input type="button" value="Open comments" onclick="openComments()" class=" form-control btn-info" />
+            </div>
+
         </div>
 
         <hr />
 
         <div class="row">
             <div class="col-md-12">
-                <h4>Create sub-node</h4>
+                <h4>Create node</h4>
             </div>
         </div>
 
@@ -59,18 +78,19 @@
 
             <div class="col-md-6">
                 <label for="txtSubNodeTitle">Order</label>
-                <input type="number" class="form-control" id="txtSubNodeOrder" placeholder="Order" />
+                <input type="number" value="0" class="form-control" id="txtSubNodeOrder" placeholder="Order" />
             </div>
 
             <div class="col-md-6">
                 <label for="txtSubNodeParentId">Parent Id</label>
-                <input type="text" class="form-control" id="txtSubNodeParentId" placeholder="Parent Id" />
+                <input type="number" class="form-control" value="0" id="txtSubNodeParentId" placeholder="Parent Id" />
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-12">
-                <input type="button" value="Crete" onclick="createNode()" class="btn-success" />
+                <label>Actions</label>
+                <input type="button" value="Crete" onclick="createNode()" class="form-control btn-success" />
             </div>
         </div>
 
@@ -90,7 +110,7 @@
 
         var selectedNode = {};
 
-        const fillTree =  () => {
+        const fillTree = () => {
 
             if (getMenuId() == 0) {
                 return;
@@ -108,10 +128,10 @@
                 $(this).jstree("open_all");
             });;
 
-            $('#menuTreeDv').on("select_node.jstree",   function (e, data) {
+            $('#menuTreeDv').on("select_node.jstree", function (e, data) {
 
-                  getNode(data.node.id)
-               
+                getNode(data.node.id)
+
 
             });
         }
@@ -123,43 +143,113 @@
             let url = "/api/Menu/GetNode/" + id;
 
             const response = await fetch(url);
-              selectedNode = await response.json();
-            
+            selectedNode = await response.json();
 
             console.log("get node api", selectedNode);
 
-            document.getElementById("txtNodeId").value =id
-            document.getElementById("txtSubNodeParentId").value =id
+            document.getElementById("txtNodeId").value = id
+            document.getElementById("txtSubNodeParentId").value = id
             document.getElementById("txtNodeTitle").value = selectedNode.title
-
+            document.getElementById("txtParentId").value = selectedNode.parentId
             document.getElementById("txtNodeOrder").value = selectedNode.orderMenu
 
         }
 
-        const updateNode = () => {
+        const updateNode = async () => {
 
+            if (document.getElementById("txtNodeTitle").value == '') {
+                alert('Title is empty');
+                return;
+            }
+
+            selectedNode.title = document.getElementById("txtNodeTitle").value
+            selectedNode.orderMenu = parseInt(document.getElementById("txtNodeOrder").value)
+            selectedNode.parentId = parseInt(document.getElementById("txtParentId").value)
+
+            await fetchApi(selectedNode, "PUT", "/api/Menu/UpdateNode")
 
             $('#menuTreeDv').jstree("refresh");
         }
 
         const createNode = async () => {
 
-            var node = {
-                "": "",
-                "": "",
-                "": ""
+            let menuId = getMenuId();
+            let title = document.getElementById("txtSubNodeTitle").value;
+
+            if (menuId == 0) {
+                return;
             }
 
-            await fetchApi(node, "POST", "/api/...")
+            if (title == '') {
+                alert('Title is empty');
+                return;
+            }
+
+
+            var node = {
+                "Title": title,
+                "OrderMenu": parseInt(document.getElementById("txtSubNodeOrder").value),
+                "MenuId": menuId,
+                "ParentId": parseInt(document.getElementById("txtSubNodeParentId").value),
+                "I18n": null,
+            }
+
+            await fetchApi(node, "POST", "/api/Menu/CreateNode")
 
             $('#menuTreeDv').jstree("refresh");
             document.getElementById("txtSubNodeTitle").value = ""
             document.getElementById("txtSubNodeOrder").value = 0
         }
 
+        const openComments = () => {
+
+            var idR = document.getElementById("txtNodeId").value;
+
+            if (idR == undefined || idR == null || idR == 0) {
+                alert("Select a node");
+                return;
+            }
+
+            window.location.href = "/coments/index/" + parseInt(idR);
+
+        }
+
+        const removeNode = async () => {
+
+            var idR = document.getElementById("txtNodeId").value;
+
+            if (idR == undefined || idR == null || idR == 0) {
+                alert("Select a node");
+                return;
+            }
+
+            let removeTrue = confirm("Remove node?");
+
+            if (removeTrue) {
+                alert("Work in progress...")
+                $('#menuTreeDv').jstree("refresh");
+            }
+
+        }
+
         const fetchApi = async (model, verb, url) => {
 
+            console.log(verb, model, url)
 
+            const response = await fetch(url, {
+                method: verb, // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(model) // body data type must match "Content-Type" header
+            });
+            // return response.json(); // parses JSON response into native JavaScript objects
 
         }
 

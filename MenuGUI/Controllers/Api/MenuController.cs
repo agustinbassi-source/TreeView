@@ -18,10 +18,12 @@ namespace MenuGUI.Controllers.Api
     public class MenuController : ControllerBase
     {
         private readonly MenuGUIContext _context;
+        private readonly MenuRespository menuRespository;
 
         public MenuController(MenuGUIContext context)
         {
             _context = context;
+            menuRespository = new MenuRespository(_context);
         }
 
         // GET: api/<MenuController>
@@ -32,9 +34,7 @@ namespace MenuGUI.Controllers.Api
             {
                 throw new Exception("Menu Item Id == 0");
             }
-
-            MenuRespository menuRespository = new MenuRespository(_context);
-
+ 
             var menu = menuRespository.GetMenuItems(menuId);
 
             return menu.Children;
@@ -43,8 +43,7 @@ namespace MenuGUI.Controllers.Api
         [HttpGet]
         public List<Menu> GetMenus()
         {
-            MenuRespository menuRespository = new MenuRespository(_context);
-
+       
             var menu = menuRespository.GetMenus();
 
             return menu;
@@ -64,15 +63,19 @@ namespace MenuGUI.Controllers.Api
             {
                 throw new Exception("Menu Item Id == 0");
             }
+
+            menuRespository.CreateMenuItem(item);
         }
 
-        [HttpPost]
+        [HttpPut]
         public void UpdateNode(MenuGuiItem item)
         {
             if (item.Id == 0 || item.MenuId == 0)
             {
                 throw new Exception("Menu Item Id == 0");
             }
+
+            menuRespository.UpdateMenuItem(item);
         }
     }
 }

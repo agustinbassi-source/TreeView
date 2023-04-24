@@ -10,11 +10,11 @@ using MenuGUI.Models;
 
 namespace MenuGUI.Controllers
 {
-    public class MenuGuiItemsController : Controller
+    public class MenuGuiItemsControllerNo : Controller
     {
         private readonly MenuGUIContext _context;
 
-        public MenuGuiItemsController(MenuGUIContext context)
+        public MenuGuiItemsControllerNo(MenuGUIContext context)
         {
             _context = context;
         }
@@ -64,7 +64,7 @@ namespace MenuGUI.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("I18n,Title,OrderMenu,ParentId,MenuId")] MenuGuiItem menuGuiItem)
+        public async Task<IActionResult> Create([Bind("Id,I18n,Title,OrderMenu,ParentId,MenuId")] MenuGuiItem menuGuiItem)
         {
             if (ModelState.IsValid)
             {
@@ -72,6 +72,7 @@ namespace MenuGUI.Controllers
                 {
                     throw new Exception("Menu Item Id == 0");
                 }
+
                 _context.Add(menuGuiItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -100,7 +101,7 @@ namespace MenuGUI.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("I18n,Title,OrderMenu,ParentId,MenuId,Id")] MenuGuiItem menuGuiItem)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,I18n,OrderMenu,ParentId")] MenuGuiItem menuGuiItem)
         {
             if (id != menuGuiItem.Id)
             {
@@ -162,14 +163,14 @@ namespace MenuGUI.Controllers
             {
                 _context.MenuGuiItem.Remove(menuGuiItem);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MenuGuiItemExists(int id)
         {
-          return (_context.MenuGuiItem?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.MenuGuiItem?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

@@ -10,89 +10,87 @@ using MenuGUI.Models;
 
 namespace MenuGUI.Controllers
 {
-    public class ComentsController : Controller
+    public class MenusController : Controller
     {
         private readonly MenuGUIContext _context;
 
-        public ComentsController(MenuGUIContext context)
+        public MenusController(MenuGUIContext context)
         {
             _context = context;
         }
 
-        // GET: Coments
-        public async Task<IActionResult> Index(int? id)
+        // GET: Menus
+        public async Task<IActionResult> Index()
         {
-            return _context.Coment != null ?
-                        View(await _context.Coment.Where(x => x.MenuId == id).ToListAsync()) :
-                        Problem("Entity set 'MenuGUIContext.Coment'  is null.");
+              return _context.Menu != null ? 
+                          View(await _context.Menu.ToListAsync()) :
+                          Problem("Entity set 'MenuGUIContext.Menu'  is null.");
         }
 
-        // GET: Coments/Details/5
+        // GET: Menus/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Coment == null)
+            if (id == null || _context.Menu == null)
             {
                 return NotFound();
             }
 
-            var coment = await _context.Coment
+            var menu = await _context.Menu
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (coment == null)
+            if (menu == null)
             {
                 return NotFound();
             }
 
-            return View(coment);
+            return View(menu);
         }
 
-        // GET: Coments/Create
+        // GET: Menus/Create
         public IActionResult Create()
         {
-            return View(new Coment() { Date = DateTime.Now });
+            return View();
         }
 
-        // POST: Coments/Create
+        // POST: Menus/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Link,Usr,UsrComent,Date,MenuId")] Coment coment)
+        public async Task<IActionResult> Create([Bind("Title,Id")] Menu menu)
         {
             if (ModelState.IsValid)
             {
-                coment.Usr = User.Identities.FirstOrDefault().Name;
-                coment.Date = DateTime.Now;
-                _context.Add(coment);
+                _context.Add(menu);
                 await _context.SaveChangesAsync();
-                return Redirect("/Coments/Index/" + coment.MenuId);
+                return RedirectToAction(nameof(Index));
             }
-            return View(coment);
+            return View(menu);
         }
 
-        // GET: Coments/Edit/5
+        // GET: Menus/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Coment == null)
+            if (id == null || _context.Menu == null)
             {
                 return NotFound();
             }
 
-            var coment = await _context.Coment.FindAsync(id);
-            if (coment == null)
+            var menu = await _context.Menu.FindAsync(id);
+            if (menu == null)
             {
                 return NotFound();
             }
-            return View(coment);
+            return View(menu);
         }
 
-        // POST: Coments/Edit/5
+        // POST: Menus/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Link,Usr,UsrComent,Date,MenuId")] Coment coment)
+        public async Task<IActionResult> Edit(int id, [Bind("Title,Id")] Menu menu)
         {
-            if (id != coment.Id)
+            if (id != menu.Id)
             {
                 return NotFound();
             }
@@ -101,12 +99,12 @@ namespace MenuGUI.Controllers
             {
                 try
                 {
-                    _context.Update(coment);
+                    _context.Update(menu);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ComentExists(coment.Id))
+                    if (!MenuExists(menu.Id))
                     {
                         return NotFound();
                     }
@@ -115,53 +113,51 @@ namespace MenuGUI.Controllers
                         throw;
                     }
                 }
-                return Redirect("/Coments/Index/" + coment.MenuId);
+                return RedirectToAction(nameof(Index));
             }
-            return View(coment);
+            return View(menu);
         }
 
-        // GET: Coments/Delete/5
+        // GET: Menus/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Coment == null)
+            if (id == null || _context.Menu == null)
             {
                 return NotFound();
             }
 
-            var coment = await _context.Coment
+            var menu = await _context.Menu
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (coment == null)
+            if (menu == null)
             {
                 return NotFound();
             }
 
-            return View(coment);
+            return View(menu);
         }
 
-        // POST: Coments/Delete/5
+        // POST: Menus/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Coment == null)
+            if (_context.Menu == null)
             {
-                return Problem("Entity set 'MenuGUIContext.Coment'  is null.");
+                return Problem("Entity set 'MenuGUIContext.Menu'  is null.");
             }
-            var coment = await _context.Coment.FindAsync(id);
-            if (coment != null)
+            var menu = await _context.Menu.FindAsync(id);
+            if (menu != null)
             {
-                _context.Coment.Remove(coment);
+                _context.Menu.Remove(menu);
             }
-
-            var idMenu = coment.MenuId;
-
+            
             await _context.SaveChangesAsync();
-            return Redirect("/Coments/Index/" + idMenu);
+            return RedirectToAction(nameof(Index));
         }
 
-        private bool ComentExists(int id)
+        private bool MenuExists(int id)
         {
-            return (_context.Coment?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.Menu?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

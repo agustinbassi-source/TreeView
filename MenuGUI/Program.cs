@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MenuGUI.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<MenuGUIContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MenuGUIContext") ?? throw new InvalidOperationException("Connection string 'MenuGUIContext' not found.")));
@@ -8,6 +10,8 @@ builder.Services.AddDbContext<MenuGUIContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+ 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -19,6 +23,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
