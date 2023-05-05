@@ -22,9 +22,11 @@ namespace MenuGUI.Controllers
         // GET: Coments
         public async Task<IActionResult> Index(int? id)
         {
-            return _context.Coment != null ?
-                        View(await _context.Coment.Where(x => x.MenuId == id).ToListAsync()) :
-                        Problem("Entity set 'MenuGUIContext.Coment'  is null.");
+            var response = _context.Coment.Where(x => x.MenuId == id).ToList();
+
+            response.ForEach(x => x.UsrComent = x.UsrComent == null ? "" : x.UsrComent.Replace(System.Environment.NewLine, "<br />"));
+
+            return View(response);
         }
 
         // GET: Coments/Details/5
@@ -41,6 +43,8 @@ namespace MenuGUI.Controllers
             {
                 return NotFound();
             }
+
+            coment.UsrComent = coment.UsrComent == null ? "" : coment.UsrComent.Replace(System.Environment.NewLine, "<br />");
 
             return View(coment);
         }
